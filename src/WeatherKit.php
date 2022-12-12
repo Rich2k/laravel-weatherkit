@@ -7,8 +7,8 @@ use Carbon\Carbon;
 class WeatherKit
 {
     protected $jwttoken;
-    protected $weatherEndpoint = 'https://weatherkit.apple.com/api/v1/weather/';
-    protected $availabilityEndpoint = 'https://weatherkit.apple.com/api/v1/availability/';
+    protected $weatherEndpoint = 'https://weatherkit.apple.com/api/v1/weather';
+    protected $availabilityEndpoint = 'https://weatherkit.apple.com/api/v1/availability';
     protected $lat;
     protected $lon;
     protected $country = null;
@@ -22,7 +22,7 @@ class WeatherKit
      */
     public function __construct()
     {
-        $this->apiKey = config('weatherkit.jwttoken');
+        $this->jwttoken = config('weatherkit.jwttoken');
         $this->client = new \GuzzleHttp\Client();
     }
 
