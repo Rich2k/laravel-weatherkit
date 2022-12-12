@@ -4,14 +4,14 @@ This provides a Laravel style wrapper for Apple's WeatherKit api, which replaced
 
 For more information see https://developer.apple.com/weatherkit/get-started/
 
-Please note, Apple requires attribution to use this API in your code https://developer.apple.com/weatherkit/get-started/#attribution-requirements and up to 500,000 calls/month are included with yuor apple developer account membership.
+Please note, Apple requires attribution to use this API in your code https://developer.apple.com/weatherkit/get-started/#attribution-requirements and up to 500,000 calls/month are included with your apple developer account membership.
 
 ### Install
 
 Require this package with composer using the following command:
 
 ``` bash
-$ composer require rich2k/laravel-weatherki
+$ composer require rich2k/laravel-weatherkit
 ```
 
 After updating composer, add the service provider to the `providers` array in `config/app.php`
