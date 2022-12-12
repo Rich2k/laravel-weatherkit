@@ -1,0 +1,59 @@
+{
+    "name": "rich2k/laravel-weatherkit",
+    "type": "library",
+    "description": "Provides a Wrapper for the Apple WeatherKit API",
+    "keywords": [
+        "rich2k",
+        "laravel-weatherkit"
+    ],
+    "homepage": "https://github.com/rich2k/laravel-weatherkit",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Richard Hyland",
+            "email": "rhyland@gmail.com",
+            "homepage": "https://richardhyland.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4.0",
+        "guzzlehttp/guzzle": "~7.0",
+        "illuminate/support": "~7.0|~8.0|~9.0",
+        "nesbot/carbon": "~1.0|~2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rich2k\\LaravelWeatherKit\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rich2k\\LaravelWeatherKit\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "check-style": "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
+        "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Rich2k\\LaravelWeatherKit\\LaravelWeatherKitServiceProvider"
+            ],
+            "aliases": {
+                "WeatherKit": "Rich2k\\LaravelWeatherKit\\Facades\\WeatherKit"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
