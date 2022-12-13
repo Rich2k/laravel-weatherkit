@@ -1,29 +1,41 @@
 <?php
 namespace Rich2k\LaravelWeatherKit;
 
-use Illuminate\Support\Arr;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Rich2k\LaravelWeatherKit\Exceptions\DataSetNotFoundException;
+use Rich2k\LaravelWeatherKit\Exceptions\MissingCoordinatesException;
 
 class WeatherKit
 {
-    protected $jwttoken;
+    protected $client;
+
+    protected $jwtToken;
+
     protected $weatherEndpoint = 'https://weatherkit.apple.com/api/v1/weather';
     protected $availabilityEndpoint = 'https://weatherkit.apple.com/api/v1/availability';
-    protected $lat;
-    protected $lon;
-    protected $country = null;
-    protected $lang = 'en_US';
-    protected $params = [];
-    protected $client;
-    protected $dataSets = ['currentWeather', 'forecastDaily', 'forecastHourly', 'forecastNextHour'];
 
+    protected array $params = [];
+    protected array $dataSets = ['currentWeather', 'forecastDaily', 'forecastHourly', 'forecastNextHour'];
+    protected ?float $lat = null;
+    protected ?float $lon = null;
+    protected ?string $country = null;
+    protected ?string $lang = null;
+    protected ?Carbon $currentAsOf = null;
+    protected ?Carbon $hourlyStart = null;
+    protected ?Carbon $hourlyEnd = null;
+    protected ?Carbon $dailyStart = null;
+    protected ?Carbon $dailyEnd = null;
     /**
      * WeatherKit constructor.
      */
     public function __construct()
     {
-        $this->jwttoken = config('weatherkit.jwttoken');
+        $this->jwtToken = config('weatherkit.auth.config.jwt');
         $this->client = new \GuzzleHttp\Client();
+
+        $this->language(config('weatherkit.languageCode'));
+        $this->timezone(config('weatherkit.timezone'));
     }
 
     /**
@@ -41,50 +53,58 @@ class WeatherKit
     }
 
     /**
-     * Builds the endpoint url and sends the get request
-     *
-     * @return mixed
+     * @return Collection
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function get()
+    public function weather(): Collection
     {
-        $url = $this->weatherEndpoint  . '/' . $this->lang . '/' . $this->lat . '/' . $this->lon;
-
-        if (! Arr::has($this->params, 'dataSets')) {
-            $this->params['dataSets'] = implode(',', $this->dataSets);
+        if (! $this->lat || ! $this->lon) {
+            throw new MissingCoordinatesException('Missing coordinates of either latitude or longitude.');
         }
 
+        $url = $this->weatherEndpoint  . '/' . $this->lang . '/' . $this->lat . '/' . $this->lon;
+
         $response = $this->client->get($url, [
-           'headers' => ['Authorization' => 'Bearer ' . $this->jwttoken],
-           'query' => $this->params,
+           'headers' => ['Authorization' => 'Bearer ' . $this->jwtToken],
+           'query' => $this->buildParams(),
         ]);
 
-        return json_decode($response->getBody());
+        return collect(json_decode($response->getBody()))->recursive();
     }
 
     /**
      * Builds the endpoint url and sends the get request
      *
-     * @return mixed
+     * @return Collection
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function availability()
+    public function availability(): Collection
     {
+        if (! $this->lat || ! $this->lon) {
+            throw new MissingCoordinatesException('Missing coordinates of either latitude or longitude.');
+        }
+
         $url = $this->availabilityEndpoint  . '/' . $this->lat . '/' . $this->lon;
 
         $response = $this->client->get($url, [
-            'headers' => ['Authorization' => 'Bearer ' . $this->jwttoken],
-            'query' => $this->params,
+            'headers' => ['Authorization' => 'Bearer ' . $this->jwtToken],
+            'query' => $this->buildParams(),
         ]);
 
-        return $this->dataSets = json_decode($response->getBody());
+        $this->dataSets = json_decode($response->getBody());
+
+        return collect($this->dataSets);
     }
 
     /**
      * Sets the dataSets query parameter by taking an array
      *
-     * @param $dataSets
+     * @param array $dataSets
      * @return $this
      */
-    public function dataSets($dataSets): WeatherKit
+    public function dataSets(array $dataSets): WeatherKit
     {
         $this->dataSets = $dataSets;
         return $this;
@@ -97,14 +117,9 @@ class WeatherKit
      * @param Carbon|null $asOf
      * @return $this
      */
-    public function currentAsOf(?Carbon $asOf = null): WeatherKit
+    public function currentAsOf(?Carbon $asOf): WeatherKit
     {
-        if (! $asOf && Arr::has($this->params, 'currentAsOf')) {
-            unset($this->params['currentAsOf']);
-            return $this;
-        }
-
-        $this->params['currentAsOf'] = $asOf->toIso8601ZuluString();
+        $this->currentAsOf = $asOf;
         return $this;
     }
 
@@ -112,17 +127,12 @@ class WeatherKit
      * The time to start the hourly forecast. If this parameter is absent, hourly forecasts start on the current hour.
      * See: https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude
      *
-     * @param Carbon|null $asOf
+     * @param Carbon|null $hourlyStart
      * @return $this
      */
-    public function hourlyStart(?Carbon $hourlyStart = null): WeatherKit
+    public function hourlyStart(?Carbon $hourlyStart): WeatherKit
     {
-        if (! $hourlyStart && Arr::has($this->params, 'hourlyStart')) {
-            unset($this->params['hourlyStart']);
-            return $this;
-        }
-
-        $this->params['hourlyStart'] = $hourlyStart->toIso8601ZuluString();
+        $this->hourlyStart = $hourlyStart;
         return $this;
     }
 
@@ -130,17 +140,12 @@ class WeatherKit
      * The time to end the hourly forecast. If this parameter is absent, hourly forecasts run 24 hours or the length of the daily forecast, whichever is longer.
      * See: https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude
      *
-     * @param Carbon|null $asOf
+     * @param Carbon|null $hourlyEnd
      * @return $this
      */
-    public function hourlyEnd(?Carbon $hourlyEnd = null): WeatherKit
+    public function hourlyEnd(?Carbon $hourlyEnd): WeatherKit
     {
-        if (! $hourlyEnd && Arr::has($this->params, 'hourlyEnd')) {
-            unset($this->params['hourlyEnd']);
-            return $this;
-        }
-
-        $this->params['hourlyEnd'] = $hourlyEnd->toIso8601ZuluString();
+        $this->hourlyEnd = $hourlyEnd;
         return $this;
     }
 
@@ -148,17 +153,12 @@ class WeatherKit
      * The time to start the daily forecast. If this parameter is absent, daily forecasts start on the current day.
      * See: https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude
      *
-     * @param Carbon|null $asOf
+     * @param Carbon|null $dailyStart
      * @return $this
      */
-    public function dailyStart(?Carbon $dailyStart = null): WeatherKit
+    public function dailyStart(?Carbon $dailyStart): WeatherKit
     {
-        if (! $dailyStart && Arr::has($this->params, 'dailyStart')) {
-            unset($this->params['dailyStart']);
-            return $this;
-        }
-
-        $this->params['dailyStart'] = $dailyStart->toIso8601ZuluString();
+        $this->dailyStart = $dailyStart;
         return $this;
     }
 
@@ -166,17 +166,12 @@ class WeatherKit
      * The time to end the daily forecast. If this parameter is absent, daily forecasts run for 10 days.
      * See: https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude
      *
-     * @param Carbon|null $asOf
+     * @param Carbon|null $dailyEnd
      * @return $this
      */
-    public function dailyEnd(?Carbon $dailyEnd = null): WeatherKit
+    public function dailyEnd(?Carbon $dailyEnd): WeatherKit
     {
-        if (! $dailyEnd && Arr::has($this->params, 'dailyEnd')) {
-            unset($this->params['dailyEnd']);
-            return $this;
-        }
-
-        $this->params['dailyEnd'] = $dailyEnd->toIso8601ZuluString();
+        $this->dailyEnd = $dailyEnd;
         return $this;
     }
 
@@ -189,7 +184,7 @@ class WeatherKit
      */
     public function timezone(string $timezone): WeatherKit
     {
-        $this->params['timezone'] = $timezone;
+        $this->timezone = $timezone;
         return $this;
     }
 
@@ -222,40 +217,103 @@ class WeatherKit
     /**
      * Filters out metadata to get only currently
      *
-     * @return $this
+     * @return Collection
+     * @throws DataSetNotFoundException
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function currently()
+    public function currently(): Collection
     {
-        return $this->dataSets(['currentWeather'])->get()->currentWeather;
+        return $this->getSingleDataSet('currentWeather');
     }
 
     /**
      * Filters out metadata to get only hourly
      *
-     * @return $this
+     * @return Collection
+     * @throws DataSetNotFoundException
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function hourly()
+    public function hourly(): Collection
     {
-        return $this->dataSets(['forecastHourly'])->get()->forecastHourly;
+        return $this->getSingleDataSet('forecastHourly');
     }
 
     /**
      * Filters out metadata to get only daily
      *
-     * @return $this
+     * @return Collection
+     * @throws DataSetNotFoundException
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function daily()
+    public function daily(): Collection
     {
-        return $this->dataSets(['forecastDaily'])->get()->forecastDaily;
+        return $this->getSingleDataSet('forecastDaily');
     }
 
     /**
      * Filters out metadata to get only next hour
      *
-     * @return $this
+     * @return Collection
+     * @throws DataSetNotFoundException
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function nextHour()
+    public function nextHour(): Collection
     {
-        return $this->dataSets(['forecastNextHour'])->get()->forecastNextHour;
+        return $this->getSingleDataSet('forecastNextHour');
+    }
+
+    /**
+     * @param string $dataSet
+     * @return Collection
+     * @throws DataSetNotFoundException
+     * @throws MissingCoordinatesException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    protected function getSingleDataSet(string $dataSet)
+    {
+        $response = $this->dataSets([$dataSet])->weather();
+
+        if (! $response->has($dataSet)) {
+            throw new DataSetNotFoundException($dataSet . ' data set not available for this location');
+        }
+
+        return $response->get($dataSet);
+    }
+
+    /**
+     * Build the query parameters
+     *
+     * @return array
+     */
+    protected function buildParams(): array
+    {
+        $this->params = [];
+        if ($this->dataSets) {
+            $this->params['dataSets'] = implode(',', $this->dataSets);
+        }
+        if ($this->timezone) {
+            $this->params['timezone'] = $this->timezone;
+        }
+        if ($this->currentAsOf) {
+            $this->params['currentAsOf'] = $this->currentAsOf->toIso8601ZuluString();
+        }
+        if ($this->dailyStart) {
+            $this->params['dailyStart'] = $this->dailyStart->toIso8601ZuluString();
+        }
+        if ($this->dailyEnd) {
+            $this->params['dailyEnd'] = $this->dailyEnd->toIso8601ZuluString();
+        }
+        if ($this->hourlyStart) {
+            $this->params['hourlyStart'] = $this->hourlyStart->toIso8601ZuluString();
+        }
+        if ($this->hourlyEnd) {
+            $this->params['hourlyEnd'] = $this->hourlyEnd->toIso8601ZuluString();
+        }
+
+        return $this->params;
     }
 }

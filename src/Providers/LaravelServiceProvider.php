@@ -1,10 +1,11 @@
 <?php
 
-namespace Rich2k\LaravelWeatherKit;
+namespace Rich2k\LaravelWeatherKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Rich2k\LaravelWeatherKit\WeatherKit;
 
-class LaravelWeatherKitServiceProvider extends ServiceProvider
+class LaravelServiceProvider extends ServiceProvider
 {
     /**
      * Perform post-registration booting of services.
@@ -13,7 +14,7 @@ class LaravelWeatherKitServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $source = dirname(__DIR__).'/config/weatherkit.php';
+        $source = dirname(__DIR__) . '/../config/weatherkit.php';
 
         $this->publishes([$source => config_path('weatherkit.php')]);
 
@@ -27,7 +28,7 @@ class LaravelWeatherKitServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('weatherkit',function($app)
+        $this->app->singleton('weatherkit', function($app)
         {
             return new WeatherKit();
         });
