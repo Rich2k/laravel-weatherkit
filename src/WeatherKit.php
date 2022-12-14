@@ -4,10 +4,16 @@ namespace Rich2k\LaravelWeatherKit;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Rich2k\LaravelWeatherKit\Exceptions\DataSetNotFoundException;
+use Rich2k\LaravelWeatherKit\Exceptions\LaravelWeatherKitException;
+use Rich2k\LaravelWeatherKit\Exceptions\KeyNotFoundExceptione;
 use Rich2k\LaravelWeatherKit\Exceptions\MissingCoordinatesException;
+use Rich2k\LaravelWeatherKit\Exceptions\TokenGenerationFailedException;
 
 class WeatherKit
 {
+    public const AUTH_TYPE_TOKEN = 'jwt';
+    public const AUTH_TYPE_P8 = 'p8';
+
     protected $client;
 
     protected $jwtToken;
@@ -26,12 +32,30 @@ class WeatherKit
     protected ?Carbon $hourlyEnd = null;
     protected ?Carbon $dailyStart = null;
     protected ?Carbon $dailyEnd = null;
+
     /**
      * WeatherKit constructor.
+     *
+     * @throws LaravelWeatherKitException
      */
     public function __construct()
     {
-        $this->jwtToken = config('weatherkit.auth.config.jwt');
+        if (config('weatherkit.auth.type') === WeatherKit::AUTH_TYPE_P8) {
+            try {
+                $this->jwtToken = new JWTToken(
+                    config('weatherkit.auth.config.pathToKeyFile'),
+                    config('weatherkit.auth.config.keyId'),
+                    config('weatherkit.auth.config.teamId'),
+                    config('weatherkit.auth.config.bundleId'),
+                    config('weatherkit.auth.config.tokenTTL')
+                );
+            } catch (TokenGenerationFailedException | KeyFileMissingException | TokenGenerationFailedException $e) {
+                throw new LaravelWeatherKitException($e->getMessage(), $e->getCode(), $e);
+            }
+        } else {
+            $this->jwtToken = config('weatherkit.auth.config.jwt');
+        }
+
         $this->client = new \GuzzleHttp\Client();
 
         $this->language(config('weatherkit.languageCode'));
