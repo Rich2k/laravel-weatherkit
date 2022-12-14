@@ -32,11 +32,28 @@ To register a facade accessor, add the following to `config/app.php` `aliases` a
 
 ```php
 'aliases' => [
-    'WeatherKit' => \Rich2k\LaravelWeatherKit\Facades\WeatherKit::class,
+    'WeatherKit' => Rich2k\LaravelWeatherKit\Facades\WeatherKit::class,
 ]
 ```
 
 ### Configuration 
+
+See [Authentication](#Authentication) section on how to use these environment variables.
+
+| Variable name              | Default                         | Description                     |
+|----------------------------|---------------------------------|---------------------------------|
+| `WEATHERKIT_AUTH_TYPE`     | `jwt`                           | `jwt` or `p8` token generation  |
+|----------------------------|---------------------------------|---------------------------------|
+| `WEATHERKIT_JWT_TOKEN`     |                                 | A pre-generated JWT token.      |
+|----------------------------|---------------------------------|---------------------------------|
+| `WEATHERKIT_KEY_PATH`      |                                 | Path to the `.p8` key file      |
+| `WEATHERKIT_KEY_ID`        |                                 | Key ID for you `.p8` file       |
+| `WEATHERKIT_TEAM_ID`       |                                 | Your Apple Team ID              |
+| `WEATHERKIT_BUNDLE_ID`     |                                 | Bundle ID of your App           |
+| `WEATHERKIT_TOKEN_TTL`     | `3600`                          | Expiry time of token in seconds |
+|----------------------------|---------------------------------|---------------------------------|
+| `WEATHERKIT_LANGUAGE_CODE` | `config('app.locale', 'en')`    | Language code                   |
+| `WEATHERKIT_TIMEZONE`      | `config('app.timezone', 'UTC')` | Timezone for timestamps         |
 
 If you wish to change the default configuration, you can publish the configuration file to your project.
 
@@ -44,17 +61,44 @@ If you wish to change the default configuration, you can publish the configurati
 $ php artisan vendor:publish --provider=\Rich2k\LaravelWeatherKit\Providers\LaravelServiceProvider
 ```
 
-## Auth Keys
+## Authentication
 
-You'll need to first generate a JWT token to access WeatherKit APIs.
+There are two ways to authenticate with WeatherKit using this library. You'll need to generate the key file first for whichever method you choose.
 
- * Setup an App Identifier on the [Identifiers](https://developer.apple.com/account/resources/identifiers/list) page of your Apple paid developer account. 
- * Create a new `App ID` of type App, give it a `Bundle ID` in reverse-domain name style, so com.myapp.weather or similar, and then make sure you select WeatherKit from the App Services tab. This App Identifier can take about 30 minutes to propagate through Apple's systems. 
- * Go to the [Keys](https://developer.apple.com/account/resources/authkeys/list) page in your developer account and add a new key with WeatherKit selected. Remember to download the key file you get at the end!
+### Generate Key File
 
-Now we need to generate your JWT token and public/private keys
+If you wish to generate and manage your own JWT Token yourself then you'll need to first generate a JWT token to access WeatherKit APIs.
 
-First create your private key in a PEM format using `openssl`
+You'll need to be enrolled in the paid Apple Developer Program, and register a new App ID and create a key.
+
+#### Create new App ID
+
+Create an App Identifier on the [Identifiers](https://developer.apple.com/account/resources/identifiers/list) section of your account. Enter a short description and give your app a unique bundle ID (e.g. com.myapp.weather).
+
+Make sure you check the WeatherKit option under *BOTH* the Capabilities and App Services tabs. Click on Continue.
+
+#### Create a Key
+
+Go to the [Keys](https://developer.apple.com/account/resources/authkeys/list) page in your developer account.  
+
+Give the key a name, e.g. WeatherKit, and make sure to enable WeatherKit. Then click the Continue button. Then you'll be taken to a page with a Register button.
+
+Remember to download the key file you get at the end!
+
+#### Required Information
+
+Whichever authentication method you decide to use, we are going to need some additional information first.
+
+* You Apple Team ID
+* The App Bundle ID that you created earlier (reverse DNS).
+* The Key ID of the key, that you created in the Create new key section, you can get this at any point after generation.
+* The physical key file ending in `.p8` you downloaded.
+
+### Manual JWT Token Generation
+
+Once you've generated and downloaded your `.p8` key file above, we now need to generate your JWT token and public/private keys
+
+Create your private key in a PEM format using `openssl`
 
 `openssl pkcs8 -nocrypt -in AuthKey_ABC1235XS.p8 -out AuthKey_ABC1235XS.pem`
 
@@ -98,21 +142,38 @@ E.g.
   "id": "DEV1234567.com.myapp.weather"
 },
 {
-"iss": "DEV1234567",
-"iat": 1670851291,
-"exp": 1702385664,
-"sub": "com.myapp.weather"
+  "iss": "DEV1234567",
+  "iat": 1670851291,
+  "exp": 1702385664,
+  "sub": "com.myapp.weather"
 }
 ```
 
-Copy and paste your private and public key into the signature verification, and the output is what you need to add to your configuration.
+Copy and paste your private and public key into the signature verification, and the output is what you need to add to your configuration `WEATHERKIT_JWT_TOKEN`.
 
-## Configuration
+#### Configuration
 
-Add the following line to the .env file:
+Add the following lines to the .env file:
 
 ```sh
+WEATHERKIT_AUTH_TYPE=jwt
 WEATHERKIT_JWT_TOKEN=<your_weatherkit_jwt_token>
+```
+
+### Dynamic Token Generation
+
+Starting with library version `>=1.2` you can dynamically generate your JWT token direct
+
+#### Configuration
+
+Add the following lines to the .env file:
+
+```sh
+WEATHERKIT_AUTH_TYPE=p8
+WEATHERKIT_KEY_PATH=<Path To Key File>
+WEATHERKIT_KEY_ID=<Key Id>
+WEATHERKIT_TEAM_ID=<Team Id>
+WEATHERKIT_BUNDLE_ID=<Bundle ID>
 ```
 
 
