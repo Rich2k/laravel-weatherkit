@@ -43,7 +43,7 @@ class WeatherKit
         if (config('weatherkit.auth.type') === WeatherKit::AUTH_TYPE_P8) {
             try {
                 $this->jwtToken = new JWTToken(
-                    config('weatherkit.auth.config.pathToKeyFile'),
+                    config('weatherkit.auth.config.key'),
                     config('weatherkit.auth.config.keyId'),
                     config('weatherkit.auth.config.teamId'),
                     config('weatherkit.auth.config.bundleId'),
