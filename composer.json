@@ -1,5 +1,5 @@
 {
-  "name": "mobiadroit/laravel-weatherkit",
+  "name": "rich2k/laravel-weatherkit",
   "type": "library",
   "description": "Provides a Wrapper for the Apple WeatherKit API",
   "keywords": [
