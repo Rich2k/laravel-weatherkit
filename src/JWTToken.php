@@ -2,6 +2,7 @@
 namespace Rich2k\LaravelWeatherKit;
 
 use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\Storage;
 use Rich2k\LaravelWeatherKit\Exceptions\KeyDecodingException;
 use Rich2k\LaravelWeatherKit\Exceptions\KeyFileMissingException;
 use Rich2k\LaravelWeatherKit\Exceptions\TokenGenerationFailedException;
@@ -34,7 +35,7 @@ class JWTToken
             $decodedKey = $this->decodeKeyString($keyValue);
         }
         else {
-            if (! file_exists($keyValue)) {
+            if (! Storage::exists($keyValue)) {
                 throw new KeyFileMissingException('Cannot find key in path ' . $keyValue);
             }
 
@@ -80,7 +81,7 @@ class JWTToken
      */
     protected function decodeKeyFile(string $p8KeyPath)
     {
-        $key = openssl_pkey_get_private(file_get_contents($p8KeyPath));
+        $key = openssl_pkey_get_private(Storage::get($p8KeyPath));
         if (! $key) {
             throw new KeyDecodingException('Key could not be decoded.');
         }
