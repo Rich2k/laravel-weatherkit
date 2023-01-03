@@ -2,6 +2,7 @@
 namespace Rich2k\LaravelWeatherKit;
 
 use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\Storage;
 use Rich2k\LaravelWeatherKit\Exceptions\KeyDecodingException;
 use Rich2k\LaravelWeatherKit\Exceptions\KeyFileMissingException;
 use Rich2k\LaravelWeatherKit\Exceptions\TokenGenerationFailedException;
@@ -22,19 +23,25 @@ class JWTToken
     protected string $jwtToken;
 
     /**
-     * @param string $p8KeyPath
+     * @param string $keyValue
      * @param string $keyId
      * @param string $teamId
      * @param string $appBundleId
      * @param int $tokenTTL
      */
-    public function __construct(string $p8KeyPath, string $keyId, string $teamId, string $bundleId, int $tokenTTL)
+    public function __construct(string $keyValue, string $keyId, string $teamId, string $bundleId, int $tokenTTL)
     {
-        if (! file_exists($p8KeyPath)) {
-            throw new KeyFileMissingException('Cannot find key in path ' . $p8KeyPath);
+        if (str_starts_with($keyValue, '-----BEGIN PRIVATE KEY-----')) {
+            $decodedKey = $this->decodeKeyString($keyValue);
         }
+        else {
+            if (! Storage::exists($keyValue)) {
+                throw new KeyFileMissingException('Cannot find key in path ' . $keyValue);
+            }
 
-        $decodedKey = $this->decodeKey($p8KeyPath);
+            $decodedKey = $this->decodeKeyFile($keyValue);
+
+        }
 
         try {
             $this->token = JWT::encode([
@@ -72,9 +79,23 @@ class JWTToken
      * @param string $p8KeyPath
      * @return resource
      */
-    protected function decodeKey(string $p8KeyPath)
+    protected function decodeKeyFile(string $p8KeyPath)
     {
-        $key = openssl_pkey_get_private(file_get_contents($p8KeyPath));
+        $key = openssl_pkey_get_private(Storage::get($p8KeyPath));
+        if (! $key) {
+            throw new KeyDecodingException('Key could not be decoded.');
+        }
+
+        return $key;
+    }
+
+    /**
+     * @param string $p8KeyString
+     * @return resource
+     */
+    protected function decodeKeyString(string $p8KeyString)
+    {
+        $key = openssl_pkey_get_private($p8KeyString);
         if (! $key) {
             throw new KeyDecodingException('Key could not be decoded.');
         }
