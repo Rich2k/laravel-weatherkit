@@ -40,20 +40,20 @@ To register a facade accessor, add the following to `config/app.php` `aliases` a
 
 See [Authentication](#Authentication) section on how to use these environment variables.
 
-| Variable name              | Default                         | Description                     |
-|----------------------------|---------------------------------|---------------------------------|
-| `WEATHERKIT_AUTH_TYPE`     | `jwt`                           | `jwt` or `p8` token generation  |
-|----------------------------|---------------------------------|---------------------------------|
-| `WEATHERKIT_JWT_TOKEN`     |                                 | A pre-generated JWT token.      |
-|----------------------------|---------------------------------|---------------------------------|
-| `WEATHERKIT_KEY_PATH`      |                                 | Path to the `.p8` key file      |
-| `WEATHERKIT_KEY_ID`        |                                 | Key ID for you `.p8` file       |
-| `WEATHERKIT_TEAM_ID`       |                                 | Your Apple Team ID              |
-| `WEATHERKIT_BUNDLE_ID`     |                                 | Bundle ID of your App           |
-| `WEATHERKIT_TOKEN_TTL`     | `3600`                          | Expiry time of token in seconds |
-|----------------------------|---------------------------------|---------------------------------|
-| `WEATHERKIT_LANGUAGE_CODE` | `config('app.locale', 'en')`    | Language code                   |
-| `WEATHERKIT_TIMEZONE`      | `config('app.timezone', 'UTC')` | Timezone for timestamps         |
+| Variable name                | Default                         | Description                                   |
+|------------------------------|---------------------------------|-----------------------------------------------|
+| `WEATHERKIT_AUTH_TYPE`       | `jwt`                           | `jwt` or `p8` token generation                |
+| ---------------------------- |---------------------------------| ---------------------------------             |
+| `WEATHERKIT_JWT_TOKEN`       |                                 | A pre-generated JWT token.                    |
+| ---------------------------- |---------------------------------| ---------------------------------             |
+| `WEATHERKIT_KEY`             |                                 | Path to the `.p8` key file or key as a string |
+| `WEATHERKIT_KEY_ID`          |                                 | Key ID for you `.p8` file                     |
+| `WEATHERKIT_TEAM_ID`         |                                 | Your Apple Team ID                            |
+| `WEATHERKIT_BUNDLE_ID`       |                                 | Bundle ID of your App                         |
+| `WEATHERKIT_TOKEN_TTL`       | `3600`                          | Expiry time of token in seconds               |
+| ---------------------------- |---------------------------------| ---------------------------------             |
+| `WEATHERKIT_LANGUAGE_CODE`   | `config('app.locale', 'en')`    | Language code                                 |
+| `WEATHERKIT_TIMEZONE`        | `config('app.timezone', 'UTC')` | Timezone for timestamps                       |
 
 If you wish to change the default configuration, you can publish the configuration file to your project.
 
@@ -170,7 +170,7 @@ Add the following lines to the .env file:
 
 ```sh
 WEATHERKIT_AUTH_TYPE=p8
-WEATHERKIT_KEY_PATH=<Path To Key File>
+WEATHERKIT_KEY=<Path To Key File/Key String>
 WEATHERKIT_KEY_ID=<Key Id>
 WEATHERKIT_TEAM_ID=<Team Id>
 WEATHERKIT_BUNDLE_ID=<Bundle ID>
