@@ -1,10 +1,10 @@
 <?php
-namespace Rich2k\LaravelWeatherKit\Exceptions;
+namespace Mobiadroit\LaravelWeatherKit\Exceptions;
 
 /**
  * KeyNotFoundException.
  *
- * @package Rich2k\LaravelWeatherKit\Exceptions
+ * @package Mobiadroit\LaravelWeatherKit\Exceptions
  */
 class KeyFileMissingException extends LaravelWeatherKitException
 {

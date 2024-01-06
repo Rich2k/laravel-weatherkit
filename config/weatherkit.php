@@ -15,7 +15,7 @@ return [
          * Can be either 'jwt' to use a pre-generated JWT Token
          * or 'p8' to use your downloaded p8 file from Apple to dynamically generate a JWT Token at runtime
          */
-        'type' => env('WEATHERKIT_AUTH_TYPE', \Rich2k\LaravelWeatherKit\WeatherKit::AUTH_TYPE_TOKEN),
+        'type' => env('WEATHERKIT_AUTH_TYPE', \Mobiadroit\LaravelWeatherKit\WeatherKit::AUTH_TYPE_TOKEN),
     ],
 
     'languageCode' => env('WEATHERKIT_LANGUAGE_CODE', config('app.locale', 'en')),

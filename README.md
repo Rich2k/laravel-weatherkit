@@ -10,8 +10,8 @@ Please note, Apple requires attribution to use this API in your code https://dev
 
 Require this package with composer using the following command:
 
-``` bash
-$ composer require rich2k/laravel-weatherkit
+```bash
+$ composer require mobiadroit/laravel-weatherkit
 ```
 
 ### Providers
@@ -22,7 +22,7 @@ You can, of course, add it manually to your `providers` array in `config/app.php
 
 ```php
 'providers' => [
-    Rich2k\LaravelWeatherKit\Providers\LaravelServiceProvider::class,
+    Mobiadroit\LaravelWeatherKit\Providers\LaravelServiceProvider::class,
 ]
 ```
 
@@ -32,33 +32,33 @@ To register a facade accessor, add the following to `config/app.php` `aliases` a
 
 ```php
 'aliases' => [
-    'WeatherKit' => Rich2k\LaravelWeatherKit\Facades\WeatherKit::class,
+    'WeatherKit' => Mobiadroit\LaravelWeatherKit\Facades\WeatherKit::class,
 ]
 ```
 
-### Configuration 
+### Configuration
 
 See [Authentication](#Authentication) section on how to use these environment variables.
 
-| Variable name                | Default                         | Description                                   |
-|------------------------------|---------------------------------|-----------------------------------------------|
-| `WEATHERKIT_AUTH_TYPE`       | `jwt`                           | `jwt` or `p8` token generation                |
-| ---------------------------- |---------------------------------| ---------------------------------             |
-| `WEATHERKIT_JWT_TOKEN`       |                                 | A pre-generated JWT token.                    |
-| ---------------------------- |---------------------------------| ---------------------------------             |
-| `WEATHERKIT_KEY`             |                                 | Path to the `.p8` key file or key as a string |
-| `WEATHERKIT_KEY_ID`          |                                 | Key ID for you `.p8` file                     |
-| `WEATHERKIT_TEAM_ID`         |                                 | Your Apple Team ID                            |
-| `WEATHERKIT_BUNDLE_ID`       |                                 | Bundle ID of your App                         |
-| `WEATHERKIT_TOKEN_TTL`       | `3600`                          | Expiry time of token in seconds               |
-| ---------------------------- |---------------------------------| ---------------------------------             |
-| `WEATHERKIT_LANGUAGE_CODE`   | `config('app.locale', 'en')`    | Language code                                 |
-| `WEATHERKIT_TIMEZONE`        | `config('app.timezone', 'UTC')` | Timezone for timestamps                       |
+| Variable name                | Default                           | Description                                   |
+| ---------------------------- | --------------------------------- | --------------------------------------------- |
+| `WEATHERKIT_AUTH_TYPE`       | `jwt`                             | `jwt` or `p8` token generation                |
+| ---------------------------- | --------------------------------- | ---------------------------------             |
+| `WEATHERKIT_JWT_TOKEN`       |                                   | A pre-generated JWT token.                    |
+| ---------------------------- | --------------------------------- | ---------------------------------             |
+| `WEATHERKIT_KEY`             |                                   | Path to the `.p8` key file or key as a string |
+| `WEATHERKIT_KEY_ID`          |                                   | Key ID for you `.p8` file                     |
+| `WEATHERKIT_TEAM_ID`         |                                   | Your Apple Team ID                            |
+| `WEATHERKIT_BUNDLE_ID`       |                                   | Bundle ID of your App                         |
+| `WEATHERKIT_TOKEN_TTL`       | `3600`                            | Expiry time of token in seconds               |
+| ---------------------------- | --------------------------------- | ---------------------------------             |
+| `WEATHERKIT_LANGUAGE_CODE`   | `config('app.locale', 'en')`      | Language code                                 |
+| `WEATHERKIT_TIMEZONE`        | `config('app.timezone', 'UTC')`   | Timezone for timestamps                       |
 
 If you wish to change the default configuration, you can publish the configuration file to your project.
 
 ```bash
-$ php artisan vendor:publish --provider=\Rich2k\LaravelWeatherKit\Providers\LaravelServiceProvider
+$ php artisan vendor:publish --provider=\Mobiadroit\LaravelWeatherKit\Providers\LaravelServiceProvider
 ```
 
 ## Authentication
@@ -75,11 +75,11 @@ You'll need to be enrolled in the paid Apple Developer Program, and register a n
 
 Create an App Identifier on the [Identifiers](https://developer.apple.com/account/resources/identifiers/list) section of your account. Enter a short description and give your app a unique bundle ID (e.g. com.myapp.weather).
 
-Make sure you check the WeatherKit option under *BOTH* the Capabilities and App Services tabs. Click on Continue.
+Make sure you check the WeatherKit option under _BOTH_ the Capabilities and App Services tabs. Click on Continue.
 
 #### Create a Key
 
-Go to the [Keys](https://developer.apple.com/account/resources/authkeys/list) page in your developer account.  
+Go to the [Keys](https://developer.apple.com/account/resources/authkeys/list) page in your developer account.
 
 Give the key a name, e.g. WeatherKit, and make sure to enable WeatherKit. Then click the Continue button. Then you'll be taken to a page with a Register button.
 
@@ -89,10 +89,10 @@ Remember to download the key file you get at the end!
 
 Whichever authentication method you decide to use, we are going to need some additional information first.
 
-* You Apple Team ID
-* The App Bundle ID that you created earlier (reverse DNS).
-* The Key ID of the key, that you created in the Create new key section, you can get this at any point after generation.
-* The physical key file ending in `.p8` you downloaded.
+- You Apple Team ID
+- The App Bundle ID that you created earlier (reverse DNS).
+- The Key ID of the key, that you created in the Create new key section, you can get this at any point after generation.
+- The physical key file ending in `.p8` you downloaded.
 
 ### Manual JWT Token Generation
 
@@ -102,7 +102,7 @@ Create your private key in a PEM format using `openssl`
 
 `openssl pkcs8 -nocrypt -in AuthKey_ABC1235XS.p8 -out AuthKey_ABC1235XS.pem`
 
-*Note:* the option `-nocrypt` is required!
+_Note:_ the option `-nocrypt` is required!
 
 A public key is also required for signing JWT tokens
 
@@ -133,7 +133,7 @@ The payload
 }
 ```
 
-E.g. 
+E.g.
 
 ```json
 {
@@ -176,8 +176,8 @@ WEATHERKIT_TEAM_ID=<Team Id>
 WEATHERKIT_BUNDLE_ID=<Bundle ID>
 ```
 
-
 ## Usage
+
 For full details of response formats, visit: https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude
 
 There are two endpoints available at present, availability and weather.
@@ -187,22 +187,27 @@ Availability allows you to retrieve which data sets are available for a given lo
 `availability()` and `weather()` functions will return their results as a Laravel `Collection`
 
 ### Required
+
 #### location(lat, lon)
+
 Pass in latitude and longitude coordinates for a basic response
-``` php
+
+```php
 WeatherKit::location(lat, lon)->weather();
 ```
 
 ### Optional Parameters
 
 #### language(lang)
+
 Pass in a language code to return text based responses in the requested language. By default this is `en_US`
 
-``` php
+```php
 WeatherKit::lang('en_GB')->location(lat, lon)->weather();
 ```
 
 #### dataSets([])
+
 Specify which data sets to use to reduce data transfer.
 
 By default we will try to call `'currentWeather', 'forecastDaily', 'forecastHourly', 'forecastNextHour'`, however you can set these manually with `dataSets()` function. You can also dynamically set this by calling `availability()` before `weather()` when not using through a facade.
@@ -212,50 +217,58 @@ WeatherKit::location(lat, lon)->dataSets(['currentWeather', 'forecastDaily'])->w
 
 // OR
 
-$weather = new \Rich2k\LaravelWeatherKit\WeatherKit();
+$weather = new \Mobiadroit\LaravelWeatherKit\WeatherKit();
 $weather->location(lat, lon)->availability();
 $weather->location(lat, lon)->weather();
 ```
 
 #### currentAsOf(t)
+
 Pass in a Carbon object of time to obtain current conditions. Defaults to now.
 
-``` php
+```php
 WeatherKit::location(lat, lon)->currentAsOf(now())->weather();
 ```
 
 #### dailyStart(t)/dailyEnd(t)
+
 `dailyStart()`: The time to start the daily forecast. If this parameter is absent, daily forecasts start on the current day.
 `dailyEnd()`: The time to end the daily forecast. If this parameter is absent, daily forecasts run for 10 days.
 
-``` php
+```php
 WeatherKit::location(lat, lon)->dailyStart(now()->subDays(7))->dailyEnd(now())->weather();
 ```
 
 #### hourlyStart(t)/hourlyEnd(t)
+
 `hourlyStart()`: The time to start the hourly forecast. If this parameter is absent, hourly forecasts start on the current hour.
 `hourlyEnd()`: The time to end the hourly forecast. If this parameter is absent, hourly forecasts run 24 hours or the length of the daily forecast, whichever is longer.
 
-``` php
+```php
 WeatherKit::location(lat, lon)->hourlyStart(now()->subHours(24))->hourlyEnd(now())->weather();
 ```
 
 #### timezone(timezone)
+
 The name of the timezone to use for rolling up weather forecasts into daily forecasts. Defaults to unset, as this is not required unless calling daily forecasts
 
-``` php
+```php
 WeatherKit::location(lat, lon)->timezone('Americas/Los_Angeles')->weather();
 ```
 
 ### Helpers
+
 The following are shorthand helpers to add readability equivalent to using `dataSets` set to a single object.
+
 ```php
 ->currently()
 ->hourly()
 ->daily()
 ->nextHour()
 ```
+
 For example, these two statements are the same
+
 ```php
 WeatherKit::location(lat, lon)->hourly()
 WeatherKit::location(lat, lon)->dataSets(['forecastHourly'])->weather()->get('forecastHourly')

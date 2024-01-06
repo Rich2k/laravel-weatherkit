@@ -1,9 +1,9 @@
 <?php
 
-namespace Rich2k\LaravelWeatherKit\Providers;
+namespace Mobiadroit\LaravelWeatherKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Rich2k\LaravelWeatherKit\WeatherKit;
+use Mobiadroit\LaravelWeatherKit\WeatherKit;
 
 class LaravelServiceProvider extends ServiceProvider
 {

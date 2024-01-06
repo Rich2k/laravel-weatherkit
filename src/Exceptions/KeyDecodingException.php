@@ -1,10 +1,10 @@
 <?php
-namespace Rich2k\LaravelWeatherKit\Exceptions;
+namespace Mobiadroit\LaravelWeatherKit\Exceptions;
 
 /**
  * KeyDecodingException.
  *
- * @package Rich2k\LaravelWeatherKit\Exceptions
+ * @package Mobiadroit\LaravelWeatherKit\Exceptions
  */
 class KeyDecodingException extends LaravelWeatherKitException
 {
