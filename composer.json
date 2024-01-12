@@ -1,9 +1,9 @@
 {
-  "name": "rich2k/laravel-weatherkit",
+  "name": "mobiadroit/laravel-weatherkit",
   "type": "library",
   "description": "Provides a Wrapper for the Apple WeatherKit API",
   "keywords": [
-    "rich2k",
+    "mobiadroit",
     "laravel-weatherkit",
     "weatherkit",
     "apple weatherkit",
@@ -13,17 +13,17 @@
     "forecast",
     "weather forecast"
   ],
-  "homepage": "https://github.com/rich2k/laravel-weatherkit",
+  "homepage": "https://github.com/mobiadroit/laravel-weatherkit",
   "support": {
-    "issues": "https://github.com/rich2k/laravel-weatherkit/issues",
-    "source": "https://github.com/rich2k/laravel-weatherkit"
+    "issues": "https://github.com/mobiadroit/laravel-weatherkit/issues",
+    "source": "https://github.com/mobiadroit/laravel-weatherkit"
   },
   "license": "MIT",
   "authors": [
     {
-      "name": "Richard Hyland",
-      "email": "rhyland@gmail.com",
-      "homepage": "https://github.com/rich2k/laravel-weatherkit",
+      "name": "Blake Krone",
+      "email": "hello@mobiadroit.com",
+      "homepage": "https://github.com/mobiadroit/laravel-weatherkit",
       "role": "Developer"
     }
   ],
@@ -41,12 +41,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Rich2k\\LaravelWeatherKit\\": "src"
+      "Mobiadroit\\LaravelWeatherKit\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Rich2k\\LaravelWeatherKit\\": "tests"
+      "Mobiadroit\\LaravelWeatherKit\\": "tests"
     }
   },
   "scripts": {
@@ -57,11 +57,11 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Rich2k\\LaravelWeatherKit\\Providers\\LaravelServiceProvider",
-        "Rich2k\\LaravelWeatherKit\\Providers\\CollectionsServiceProvider"
+        "Mobiadroit\\LaravelWeatherKit\\Providers\\LaravelServiceProvider",
+        "Mobiadroit\\LaravelWeatherKit\\Providers\\CollectionsServiceProvider"
       ],
       "aliases": {
-        "WeatherKit": "Rich2k\\LaravelWeatherKit\\Facades\\WeatherKit"
+        "WeatherKit": "Mobiadroit\\LaravelWeatherKit\\Facades\\WeatherKit"
       }
     }
   },

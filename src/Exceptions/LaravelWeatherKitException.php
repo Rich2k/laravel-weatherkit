@@ -1,12 +1,12 @@
 <?php
-namespace Rich2k\LaravelWeatherKit\Exceptions;
+namespace Mobiadroit\LaravelWeatherKit\Exceptions;
 
 use Exception;
 
 /**
  * Class LaravelWeatherKitException
  *
- * @package Rich2k\LaravelWeatherKit\Exceptions
+ * @package Mobiadroit\LaravelWeatherKit\Exceptions
  */
 class LaravelWeatherKitException extends Exception
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Rich2k\LaravelWeatherKit\Facades;
+namespace Mobiadroit\LaravelWeatherKit\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
