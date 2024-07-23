@@ -4,8 +4,8 @@ namespace Rich2k\LaravelWeatherKit;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Rich2k\LaravelWeatherKit\Exceptions\DataSetNotFoundException;
+use Rich2k\LaravelWeatherKit\Exceptions\KeyFileMissingException;
 use Rich2k\LaravelWeatherKit\Exceptions\LaravelWeatherKitException;
-use Rich2k\LaravelWeatherKit\Exceptions\KeyNotFoundExceptione;
 use Rich2k\LaravelWeatherKit\Exceptions\MissingCoordinatesException;
 use Rich2k\LaravelWeatherKit\Exceptions\TokenGenerationFailedException;
 
