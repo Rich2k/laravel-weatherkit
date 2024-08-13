@@ -32,6 +32,7 @@ class WeatherKit
     protected ?Carbon $hourlyEnd = null;
     protected ?Carbon $dailyStart = null;
     protected ?Carbon $dailyEnd = null;
+    protected ?string $timezone = null;
 
     /**
      * WeatherKit constructor.
