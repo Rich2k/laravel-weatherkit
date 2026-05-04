@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static Collection hourly()
  * @method static Collection daily()
  * @method static Collection nextHour()
+ * @method static Collection alerts()
+ * @method static Collection attribution()
  */
 class WeatherKit extends Facade
 {

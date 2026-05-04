@@ -2,11 +2,13 @@
 namespace Rich2k\LaravelWeatherKit;
 
 use Carbon\Carbon;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
 use Rich2k\LaravelWeatherKit\Exceptions\DataSetNotFoundException;
 use Rich2k\LaravelWeatherKit\Exceptions\KeyFileMissingException;
 use Rich2k\LaravelWeatherKit\Exceptions\LaravelWeatherKitException;
 use Rich2k\LaravelWeatherKit\Exceptions\MissingCoordinatesException;
+use Rich2k\LaravelWeatherKit\Exceptions\MissingRequiredParametersException;
 use Rich2k\LaravelWeatherKit\Exceptions\TokenGenerationFailedException;
 
 class WeatherKit
@@ -20,8 +22,10 @@ class WeatherKit
 
     protected $weatherEndpoint = 'https://weatherkit.apple.com/api/v1/weather';
     protected $availabilityEndpoint = 'https://weatherkit.apple.com/api/v1/availability';
+    protected $attributionEndpoint = 'https://weatherkit.apple.com/attribution';
 
     protected array $params = [];
+
     protected array $dataSets = ['currentWeather', 'forecastDaily', 'forecastHourly', 'forecastNextHour'];
     protected ?float $lat = null;
     protected ?float $lon = null;
@@ -226,12 +230,14 @@ class WeatherKit
     }
 
     /**
+     * The country code, should be a valid two character ISO 3166-1 alpha-2 country code
+     *
      * @param string $country
      * @return $this
      */
     public function country(string $country): WeatherKit
     {
-        $this->country = $country;
+        $this->country = strtoupper($country);
         return $this;
     }
 
@@ -292,6 +298,42 @@ class WeatherKit
     }
 
     /**
+     * @throws MissingCoordinatesException
+     * @throws MissingRequiredParametersException
+     * @throws DataSetNotFoundException
+     * @throws GuzzleException
+     */
+    public function alerts(): Collection
+    {
+        if (! $this->country) {
+            throw new MissingRequiredParametersException('Country param is required for alert data');
+        }
+
+        return $this->getSingleDataSet('weatherAlerts');
+    }
+
+    /**
+     * @return Collection
+     * @throws GuzzleException
+     * @throws MissingRequiredParametersException
+     */
+    public function attribution(): Collection
+    {
+        if (! $this->lang) {
+            throw new MissingRequiredParametersException('Language param is required for attribution data');
+        }
+
+        $url = $this->attributionEndpoint  . '/' . $this->lang;
+
+        $response = $this->client->get($url, [
+            'headers' => ['Authorization' => 'Bearer ' . $this->jwtToken],
+            'query' => $this->buildParams(),
+        ]);
+
+        return collect(json_decode($response->getBody()));
+    }
+
+    /**
      * @param string $dataSet
      * @return Collection
      * @throws DataSetNotFoundException
@@ -337,6 +379,9 @@ class WeatherKit
         }
         if ($this->hourlyEnd) {
             $this->params['hourlyEnd'] = $this->hourlyEnd->toIso8601ZuluString();
+        }
+        if ($this->country) {
+            $this->params['country'] = $this->country;
         }
 
         return $this->params;

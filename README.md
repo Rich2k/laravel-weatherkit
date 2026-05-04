@@ -4,7 +4,7 @@ This provides a Laravel style wrapper for Apple's WeatherKit api, which replaced
 
 For more information see https://developer.apple.com/weatherkit/get-started/
 
-Please note, Apple requires attribution to use this API in your code https://developer.apple.com/weatherkit/get-started/#attribution-requirements and up to 500,000 calls/month are included with your apple developer account membership.
+Please note, Apple requires attribution to use this API in your code https://developer.apple.com/weatherkit/get-started/#attribution-requirements and up to 500,000 calls/month are included with your apple developer account membership. See [Attribution](#Attribution) section below for a helper function.
 
 ## Install
 
@@ -207,6 +207,16 @@ Specify which data sets to use to reduce data transfer.
 
 By default we will try to call `'currentWeather', 'forecastDaily', 'forecastHourly', 'forecastNextHour'`, however you can set these manually with `dataSets()` function. You can also dynamically set this by calling `availability()` before `weather()` when not using through a facade.
 
+Available data sets, currently supported
+
+* `currentWeather`
+* `forecastDaily`
+* `forecastHourly`
+* `forecastNextHour`
+* `weatherAlerts`
+
+Note, if you call `weather()` without defining your data sets, we will not automatically include `weatherAlerts`, as `weatherAlerts` also requires you to set your `country('GB')` using an ISO Alpha-2 country code
+
 ```php
 WeatherKit::location(lat, lon)->dataSets(['currentWeather', 'forecastDaily'])->weather();
 
@@ -247,6 +257,13 @@ The name of the timezone to use for rolling up weather forecasts into daily fore
 WeatherKit::location(lat, lon)->timezone('Americas/Los_Angeles')->weather();
 ```
 
+#### country(countyCode)
+This is the ISO 3166-1 alpha-2 two character country code. This parameter is required for weather alerts. The WeatherKit API requires the country code to be uppercase, this library will handle this for you.
+
+``` php
+WeatherKit::location(lat, lon)->country(country)->alerts();
+```
+
 ### Helpers
 The following are shorthand helpers to add readability equivalent to using `dataSets` set to a single object.
 ```php
@@ -254,11 +271,20 @@ The following are shorthand helpers to add readability equivalent to using `data
 ->hourly()
 ->daily()
 ->nextHour()
+->alerts()
 ```
 For example, these two statements are the same
 ```php
 WeatherKit::location(lat, lon)->hourly()
 WeatherKit::location(lat, lon)->dataSets(['forecastHourly'])->weather()->get('forecastHourly')
+```
+
+### Attribution
+
+Use of the WeatherKit REST API requires attribution. You can obtain the attribution logos and source by calling the `attribution()` helper. The language is required for this helper.
+
+```php
+WeatherKit::language('en')->attribution()
 ```
 
 ## License
